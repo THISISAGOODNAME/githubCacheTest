@@ -76,9 +76,9 @@ jobs:
         cd ${{ github.workspace }}
         mkdir build
         cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="cl.exe" -DCMAKE_CXX_COMPILER="cl.exe" -DMSVC_TOOLSET_VERSION=142
                   
     - name: Build Solution (windows)
       run: |
-        cd build
-        cmake --build build
+        cd ${{ github.workspace }}/build
+        cmake --build ..
