@@ -1,0 +1,84 @@
+name: CMake
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+          os: [windows-latest]
+          python-version: ['3.7.7']
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set environment variables
+      run: |
+        setx VCPKG_ROOT ${{ github.workspace }}\vcpkg
+        setx QT6_DIR ${{ github.workspace }}\Qt\6.2.0\svc2019_64
+        setx VCPKG_FEATURE_FLAGS --no-binarycaching
+        setx VCPKG_DEFAULT_TRIPLET x64-windows
+        setx PYTHON_DIR C:/hostedtoolcache/windows/Python/3.7.7/x64
+
+    - uses: actions/cache@v2
+      id: vcpkgCache
+      with:
+        path: ${{ github.workspace }}\vcpkg
+        key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.exe') }}
+        restore-keys: ${{ runner.os }}-vcpkg-
+        
+    - name: Installing vcpkg (windows)
+      if: steps.vcpkgCache.outputs.cache-hit != 'true'
+      run: |
+        cd ${{ github.workspace }}
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        .\vcpkg.exe install eigen3:x64-windows --binarysource=clear
+        git clone https://gitlab.com/libeigen/eigen.git
+        Remove-Item installed\x64-windows\include\Eigen -Recurse -Force -Confirm:$false
+        Remove-Item installed\x64-windows\include\eigen3\Eigen -Recurse -Force -Confirm:$false
+        Copy-Item -Path eigen\Eigen -Destination installed\x64-windows\include -Recurse
+        Copy-Item -Path eigen\Eigen -Destination installed\x64-windows\include\eigen3 -Recurse
+        Remove-Item eigen -Recurse -Force -Confirm:$false
+        .\vcpkg.exe install rapidjson:x64-windows
+        git clone https://github.com/Tencent/rapidjson.git
+        Remove-Item installed\x64-windows\include\rapidjson -Recurse -Force -Confirm:$false
+        Copy-Item -Path rapidjson\include\rapidjson -Destination installed\x64-windows\include -Recurse
+        Remove-Item rapidjson -Recurse -Force -Confirm:$false
+        .\vcpkg.exe install tbb:x64-windows --binarysource=clear
+        Remove-Item downloads -Recurse -Force -Confirm:$false
+        Remove-Item buildtrees -Recurse -Force -Confirm:$false
+        .\vcpkg.exe install assimp:x64-windows --binarysource=clear
+        .\vcpkg.exe install eastl:x64-windows --binarysource=clear
+        .\vcpkg.exe install lz4:x64-windows
+        .\vcpkg.exe install spdlog:x64-windows
+        .\vcpkg.exe install lua:x64-windows
+        .\vcpkg.exe install sol2:x64-windows
+        # .\vcpkg.exe install cgal:x64-windows --binarysource=clear
+        # .\vcpkg.exe install pybind11:x64-windows --binarysource=clear
+        Remove-Item downloads -Recurse -Force -Confirm:$false
+        Remove-Item buildtrees -Recurse -Force -Confirm:$false
+        Remove-Item packages -Recurse -Force -Confirm:$false
+
+    - uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Running cmake (windows)
+      run: |
+        cd ${{ github.workspace }}
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
+                  
+    - name: Build Solution (windows)
+      run: |
+        cd build
+        cmake --build build
