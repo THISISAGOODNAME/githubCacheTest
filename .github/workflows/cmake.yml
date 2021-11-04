@@ -57,7 +57,7 @@ jobs:
         .\vcpkg.exe install tbb:x64-windows --binarysource=clear
         Remove-Item downloads -Recurse -Force -Confirm:$false
         Remove-Item buildtrees -Recurse -Force -Confirm:$false
-        .\vcpkg.exe install assimp:x64-windows --binarysource=clear
+        # .\vcpkg.exe install assimp:x64-windows --binarysource=clear
         .\vcpkg.exe install eastl:x64-windows --binarysource=clear
         .\vcpkg.exe install lz4:x64-windows
         .\vcpkg.exe install spdlog:x64-windows
@@ -76,7 +76,7 @@ jobs:
         cd ${{ github.workspace }}
         mkdir build
         cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER="cl.exe" -DCMAKE_CXX_COMPILER="cl.exe" -DMSVC_TOOLSET_VERSION=142
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DMSVC_TOOLSET_VERSION=142
                   
     - name: Build Solution (windows)
       run: |
