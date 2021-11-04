@@ -85,8 +85,4 @@ jobs:
         mkdir build
         cd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
-                  
-    - name: Build Solution (windows)
-      run: |
-        cd ${{ github.workspace }}/build
-        cmake --build .. --parallel
+        cmake --build ..
