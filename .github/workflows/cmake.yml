@@ -69,16 +69,24 @@ jobs:
         Remove-Item buildtrees -Recurse -Force -Confirm:$false
         Remove-Item packages -Recurse -Force -Confirm:$false
 
-    - uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Setup Ninja
+      uses: seanmiddleditch/gha-setup-ninja@master
+
+    - name: Setup VS Environment
+      uses: seanmiddleditch/gha-setup-vsdevenv@master
 
     - name: Running cmake (windows)
+      env:
+        CXXFLAGS: ${{ matrix.cxxflags }}
+        CXX: ${{ matrix.cxx }}
+        CC: ${{ matrix.cc }}
       run: |
         cd ${{ github.workspace }}
         mkdir build
         cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DMSVC_TOOLSET_VERSION=142
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
                   
     - name: Build Solution (windows)
       run: |
         cd ${{ github.workspace }}/build
-        cmake --build ..
+        cmake --build .. --parallel
