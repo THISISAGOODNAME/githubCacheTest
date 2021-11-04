@@ -28,6 +28,32 @@ jobs:
         setx VCPKG_DEFAULT_TRIPLET x64-windows
         setx PYTHON_DIR C:/hostedtoolcache/windows/Python/3.7.7/x64
 
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1  # not v2!
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-QtCache
+
+    - name: Installing Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '6.2.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+        dir: '${{ github.workspace }}/'
+        install-deps: 'true'
+        modules: 'addons.qt3d qtquick3d qtshadertools qtquicktimeline'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        setup-python: 'true'
+        tools: ''
+        set-env: 'true'
+        tools-only: 'false'
+        aqtversion: '==1.2.5'
+        py7zrversion: '==0.16.1'
+        extra: '--external 7z'
+
     - uses: actions/cache@v2
       id: vcpkgCache
       with:
