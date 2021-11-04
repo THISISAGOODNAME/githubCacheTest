@@ -85,4 +85,4 @@ jobs:
         mkdir build
         cd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
-        cmake --build ..
+        ninja -j 8
